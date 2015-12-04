@@ -28,7 +28,7 @@ typedef NS_ENUM(NSInteger, LCHActionStyle) {
 
 @property (nonatomic, assign) BOOL backgroundTapDismissalGestureEnabled;
 @property (nonatomic, strong) UIColor *separatorColor;
-
+@property (nonatomic, strong) UIColor *backgroundColor;
 + (instancetype) initWithTitle:(NSString *)title message:(NSString *)message;
 - (void) addAction:(LCHActionItem *)action;
 @end

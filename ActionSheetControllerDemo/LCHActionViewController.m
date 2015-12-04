@@ -11,6 +11,7 @@
 static CGFloat const kAnimationDuration = 0.3f;
 static CGFloat const kPaddingFromScreenEdgesForLabel = 20.0f;
 static CGFloat const kPaddingBetweenLabelsAndScreen = 5.0f;
+static CGFloat const kHeaderSepartorLineHeight = 1.0f;
 
 static NSString *kTableViewCellIdentifier = @"TableViewCellIdentifier";
 
@@ -102,7 +103,8 @@ static NSString *kTableViewCellIdentifier = @"TableViewCellIdentifier";
 }
 
 - (CGRect)frameOfPresentedViewInContainerView {
-    return [self.actionViewPresentationDelegate frameForPresentationViewController];
+    CGRect rect = [self.actionViewPresentationDelegate frameForPresentationViewController];
+    return rect;
 }
 
 - (void)containerViewWillLayoutSubviews {
@@ -235,12 +237,12 @@ static NSDictionary *_defaultColors = nil;
     if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
         self.modalPresentationStyle = UIModalPresentationCustom;
         self.transitioningDelegate = self;
-        self.view.backgroundColor = [UIColor brownColor];
     }
     else {
         self.modalPresentationStyle = UIModalPresentationPopover;
-        self.view.backgroundColor = [UIColor whiteColor];
+        
     }
+    self.view.backgroundColor = [UIColor whiteColor];
     self.datasourceArray = [NSMutableArray array];
 }
 
@@ -248,7 +250,7 @@ static NSDictionary *_defaultColors = nil;
     [super viewDidLoad];
     self.tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     self.tableView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.tableView.backgroundColor = [UIColor yellowColor];
+    self.tableView.backgroundColor = [UIColor clearColor];
     [self.tableView setSeparatorInset:UIEdgeInsetsZero];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
@@ -336,19 +338,26 @@ static NSDictionary *_defaultColors = nil;
 {
     CGRect actionSheetTitleLabelRect = CGRectZero;
     CGRect actionSheetMessageLabelRect = CGRectZero;
-    CGSize maxSize = CGSizeMake(CGRectGetWidth(self.tableView.bounds) - kPaddingFromScreenEdgesForLabel, MAXFLOAT);
+    CGSize maxSize;
+    if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
+        maxSize = CGSizeMake(300 - kPaddingFromScreenEdgesForLabel, MAXFLOAT);
+    }
+    else {
+        maxSize = CGSizeMake(CGRectGetWidth([UIScreen mainScreen].bounds) - kPaddingFromScreenEdgesForLabel, MAXFLOAT);
+    }
+    
     if(self.actionSheetTitle){
-        actionSheetTitleLabelRect = [self boundingRectForString:self.actionSheetTitle withMaxSize:maxSize withFont:[UIFont systemFontOfSize:16]];
+        actionSheetTitleLabelRect = [self boundingRectForString:self.actionSheetTitle withMaxSize:maxSize withFont:[UIFont systemFontOfSize:15]];
     }
     
     if(self.actionSheetMessage){
-        actionSheetMessageLabelRect = [self boundingRectForString:self.actionSheetMessage withMaxSize:maxSize withFont:[UIFont systemFontOfSize:12]];
+        actionSheetMessageLabelRect = [self boundingRectForString:self.actionSheetMessage withMaxSize:maxSize withFont:[UIFont systemFontOfSize:13]];
     }
     
-    CGFloat headerViewRectHeight = CGRectGetHeight(actionSheetMessageLabelRect)+CGRectGetHeight(actionSheetTitleLabelRect)+ (3*kPaddingBetweenLabelsAndScreen);
+    CGFloat headerViewRectHeight = ceilf(CGRectGetHeight(actionSheetMessageLabelRect)) + ceilf(CGRectGetHeight(actionSheetTitleLabelRect)) + (3*kPaddingBetweenLabelsAndScreen);
     
     CGFloat totalTableViewCellHeight = [self.datasourceArray count] * 50.0f;
-    CGRect rectToBeReturned =  CGRectMake(0, CGRectGetHeight([UIScreen mainScreen].bounds) - headerViewRectHeight - totalTableViewCellHeight - 2*kPaddingBetweenLabelsAndScreen, CGRectGetWidth([UIScreen mainScreen].bounds), headerViewRectHeight + totalTableViewCellHeight + 2*kPaddingBetweenLabelsAndScreen);
+    CGRect rectToBeReturned =  CGRectMake(0, CGRectGetHeight([UIScreen mainScreen].bounds) - headerViewRectHeight - totalTableViewCellHeight , CGRectGetWidth([UIScreen mainScreen].bounds), headerViewRectHeight + totalTableViewCellHeight);
     return rectToBeReturned;
 }
 
@@ -372,13 +381,11 @@ static NSDictionary *_defaultColors = nil;
     CGRect actionSheetMessageLabelRect = CGRectZero;
     
     if(self.actionSheetTitle){
-        UIFont *font = [UIFont systemFontOfSize:15];
-        actionSheetTitleLabelRect = [self boundingRectForString:self.actionSheetTitle withMaxSize:maxSize withFont:font];
+        actionSheetTitleLabelRect = [self boundingRectForString:self.actionSheetTitle withMaxSize:maxSize withFont:[UIFont systemFontOfSize:15]];
     }
     
     if(self.actionSheetMessage){
-        UIFont *font = [UIFont systemFontOfSize:13];
-        actionSheetMessageLabelRect = [self boundingRectForString:self.actionSheetMessage withMaxSize:maxSize withFont:font];
+        actionSheetMessageLabelRect = [self boundingRectForString:self.actionSheetMessage withMaxSize:maxSize withFont:[UIFont systemFontOfSize:13]];
     }
     
     UIView *containerView = [[UIView alloc] init];
@@ -386,19 +393,24 @@ static NSDictionary *_defaultColors = nil;
     
     UILabel *titleLabel = [[UILabel alloc] init];
     titleLabel.numberOfLines = 0;
-    titleLabel.frame = CGRectMake(kPaddingFromScreenEdgesForLabel/2, kPaddingBetweenLabelsAndScreen, CGRectGetWidth(tableView.bounds) - kPaddingFromScreenEdgesForLabel, CGRectGetHeight(actionSheetTitleLabelRect));
-    titleLabel.font = [UIFont systemFontOfSize:16];
+    titleLabel.frame = CGRectMake(kPaddingFromScreenEdgesForLabel/2, kPaddingBetweenLabelsAndScreen, CGRectGetWidth(tableView.bounds) - kPaddingFromScreenEdgesForLabel, ceilf(CGRectGetHeight(actionSheetTitleLabelRect)));
+    titleLabel.font = [UIFont systemFontOfSize:15];
     titleLabel.textAlignment = NSTextAlignmentCenter;
     titleLabel.text = self.actionSheetTitle;
     [containerView addSubview:titleLabel];
     
     UILabel *messageLabel = [[UILabel alloc] init];
     messageLabel.numberOfLines = 0;
-    messageLabel.frame = CGRectMake(kPaddingFromScreenEdgesForLabel/2, (2* kPaddingBetweenLabelsAndScreen) + CGRectGetHeight(actionSheetTitleLabelRect), CGRectGetWidth(tableView.bounds) - kPaddingFromScreenEdgesForLabel, CGRectGetHeight(actionSheetMessageLabelRect));
-    messageLabel.font = [UIFont systemFontOfSize:12];
+    messageLabel.frame = CGRectMake(kPaddingFromScreenEdgesForLabel/2, (2* kPaddingBetweenLabelsAndScreen) + ceilf(CGRectGetHeight(actionSheetTitleLabelRect)), CGRectGetWidth(tableView.bounds) - kPaddingFromScreenEdgesForLabel, ceilf(CGRectGetHeight(actionSheetMessageLabelRect)));
+    messageLabel.font = [UIFont systemFontOfSize:13];
     messageLabel.textAlignment = NSTextAlignmentCenter;
     messageLabel.text = self.actionSheetMessage;
     [containerView addSubview:messageLabel];
+    
+    UIView *headerSeparatorLine = [[UIView alloc] init];
+    headerSeparatorLine.frame = CGRectMake(0, CGRectGetMaxY(messageLabel.frame) + kPaddingBetweenLabelsAndScreen, CGRectGetWidth(tableView.frame), kHeaderSepartorLineHeight);
+    headerSeparatorLine.backgroundColor = [UIColor blackColor];
+    [containerView addSubview:headerSeparatorLine];
     
     return containerView;
 }
@@ -411,13 +423,13 @@ static NSDictionary *_defaultColors = nil;
     CGRect actionSheetMessageLabelRect = CGRectZero;
     CGSize maxSize = CGSizeMake(CGRectGetWidth(tableView.bounds) - kPaddingFromScreenEdgesForLabel, MAXFLOAT);
     if(self.actionSheetTitle){
-        actionSheetTitleLabelRect = [self boundingRectForString:self.actionSheetTitle withMaxSize:maxSize withFont:[UIFont systemFontOfSize:16]];
+        actionSheetTitleLabelRect = [self boundingRectForString:self.actionSheetTitle withMaxSize:maxSize withFont:[UIFont systemFontOfSize:15]];
     }
     
     if(self.actionSheetMessage){
-        actionSheetMessageLabelRect = [self boundingRectForString:self.actionSheetMessage withMaxSize:maxSize withFont:[UIFont systemFontOfSize:12]];
+        actionSheetMessageLabelRect = [self boundingRectForString:self.actionSheetMessage withMaxSize:maxSize withFont:[UIFont systemFontOfSize:13]];
     }
-    CGRect headerViewRect = CGRectMake(0, 0, CGRectGetWidth(tableView.bounds), CGRectGetHeight(actionSheetMessageLabelRect)+CGRectGetHeight(actionSheetTitleLabelRect)+ (3*kPaddingBetweenLabelsAndScreen));
+    CGRect headerViewRect = CGRectMake(0, 0, CGRectGetWidth(tableView.bounds), ceilf(CGRectGetHeight(actionSheetMessageLabelRect)) + ceilf(CGRectGetHeight(actionSheetTitleLabelRect)) + (3*kPaddingBetweenLabelsAndScreen)+ kHeaderSepartorLineHeight);
     return CGRectGetHeight(headerViewRect);
 }
 
