@@ -339,6 +339,8 @@ static NSDictionary *_defaultColors = nil;
     CGRect actionSheetTitleLabelRect = CGRectZero;
     CGRect actionSheetMessageLabelRect = CGRectZero;
     CGSize maxSize;
+    CGFloat heightOfHeaderView;
+    
     if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad){
         maxSize = CGSizeMake(300 - kPaddingFromScreenEdgesForLabel, MAXFLOAT);
     }
@@ -354,7 +356,17 @@ static NSDictionary *_defaultColors = nil;
         actionSheetMessageLabelRect = [self boundingRectForString:self.actionSheetMessage withMaxSize:maxSize withFont:[UIFont systemFontOfSize:13]];
     }
     
-    CGFloat headerViewRectHeight = ceilf(CGRectGetHeight(actionSheetMessageLabelRect)) + ceilf(CGRectGetHeight(actionSheetTitleLabelRect)) + (3*kPaddingBetweenLabelsAndScreen);
+    if(!self.actionSheetTitle && !self.actionSheetMessage){
+        heightOfHeaderView = 0.0f;
+    }
+    else if(self.actionSheetMessage && self.actionSheetTitle){
+        heightOfHeaderView = (3*kPaddingBetweenLabelsAndScreen);
+    }
+    else{
+        heightOfHeaderView = 2*kPaddingBetweenLabelsAndScreen;
+    }
+    
+    CGFloat headerViewRectHeight = ceilf(CGRectGetHeight(actionSheetMessageLabelRect)) + ceilf(CGRectGetHeight(actionSheetTitleLabelRect)) + heightOfHeaderView;
     
     CGFloat totalTableViewCellHeight = [self.datasourceArray count] * 50.0f;
     CGRect rectToBeReturned =  CGRectMake(0, CGRectGetHeight([UIScreen mainScreen].bounds) - headerViewRectHeight - totalTableViewCellHeight , CGRectGetWidth([UIScreen mainScreen].bounds), headerViewRectHeight + totalTableViewCellHeight);
@@ -416,7 +428,7 @@ static NSDictionary *_defaultColors = nil;
 }
 
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
-    if(!self.actionSheetTitle && !self.actionSheetTitle){
+    if(!self.actionSheetTitle && !self.actionSheetMessage){
         return 0;
     }
     CGRect actionSheetTitleLabelRect = CGRectZero;

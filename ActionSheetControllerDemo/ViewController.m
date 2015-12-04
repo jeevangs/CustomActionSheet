@@ -35,9 +35,9 @@
 }
 
 - (void) actionSheetButtonTapped1:(id)sender{
-    LCHActionViewController *actionViewController = [LCHActionViewController initWithTitle:@"Hello Hello" message:@"A very very very long message has to be displayed here in order to test the character limit"];
+    LCHActionViewController *actionViewController = [LCHActionViewController initWithTitle:nil message:nil]; //@"A very very very long message has to be displayed here in order to test the character limit"
     actionViewController.backgroundTapDismissalGestureEnabled = YES;
-    actionViewController.separatorColor = [UIColor redColor];
+    actionViewController.separatorColor = [UIColor grayColor];
     
     LCHActionItem *actionItem = [LCHActionItem actionWithTitle:@"Test" image:nil style:LCHActionStyleDefault handler:^(LCHActionItem *action) {
         NSLog(@"Action item  is selected");
